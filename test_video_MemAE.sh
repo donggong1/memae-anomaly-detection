@@ -7,7 +7,7 @@ sudo /home/dong/.conda/envs/py36pt040/bin/python script_testing.py \
     --MemDim 2000 \
     --EntropyLossWeight 0.0002 \
     --ShrinkThres 0.0025 \
-    --ModelRoot /media/dong/Data1/proj_anomaly/github_testing_root/memae_trained_models/ \
-    --DataRoot /media/dong/Data1/proj_anomaly/dataset/ \
-    --OutRoot /media/dong/Data1/proj_anomaly/github_testing_root/results/ \
+    --ModelRoot ./memae_models/ \
+    --DataRoot ./dataset/ \
+    --OutRoot ./results/ \
     --Suffix Non
