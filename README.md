@@ -17,9 +17,9 @@ In IEEE International Conference on Computer Vision (ICCV), 2019.
 1. Install this repository and the required packages.
 2. Download pretrained models from [To be added](). Move them into `./memae_models`.
 3. Prepare dataset.
-   1). Download dataset.
-   2). Move the dataset into `./dataset`. 
-   3). The dataset folder should be organized in specific stuctures to fit the `dataloader` as the followings. This can be obtained by running the corresponding script in `./matlab_script (To be added)`.
+   1) Download dataset.
+   2) Move the dataset into `./dataset`. 
+   3) The dataset folder should be organized in specific stuctures to fit the `dataloader` as the followings. This can be obtained by running the corresponding script in `./matlab_script (To be added)`.
 4. Run `.sh` files or `python script_testing.py`. 
 
 ### Training
