@@ -1,3 +1,3 @@
 from __future__ import print_function, absolute_import
-from data.video_datasets import *
+from .video_datasets import *
 
