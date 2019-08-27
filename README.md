@@ -1,9 +1,9 @@
 # memae-anomaly-detection
 
-<small>*Memorizing Normality to Detect Anomaly: Memory-augmented Deep Autoencoder (MemAE) for Unsupervised Anomaly Detection 
+<small>Memorizing Normality to Detect Anomaly: Memory-augmented Deep Autoencoder (MemAE) for Unsupervised Anomaly Detection 
 
 Dong Gong, Lingqiao Liu, Vuong Le, Budhaditya Saha, Moussa Reda Mansour, Svetha Venkatesh, Anton van den Hengel.  
-In IEEE International Conference on Computer Vision (ICCV), 2019.*  
+In IEEE International Conference on Computer Vision (ICCV), 2019.
 \[[Paper (v2)](https://arxiv.org/abs/1904.02639)\]\[[Project](https://donggong1.github.io/anomdec-memae.html)\]
 </small>
 
