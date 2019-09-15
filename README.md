@@ -15,7 +15,7 @@ In IEEE International Conference on Computer Vision (ICCV), 2019.
 ## Usage
 ### Testing
 1. Install this repository and the required packages.
-2. Download pretrained models from [To be added](). Move them into `./memae_models`.
+2. Download pretrained models from \[[MODELS](https://drive.google.com/drive/folders/1N2DvmZwCKx_8bZWeueJNn9nsh3rQXdTg?usp=sharing)\]. Move them into `./memae_models`.
 3. Prepare dataset.
    1) Download dataset.
    2) Move the dataset into `./dataset`. 
