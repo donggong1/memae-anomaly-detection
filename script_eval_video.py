@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import os
 import utils
 
-root_path = '/home/dong/DataDisk/proj_anomaly/'
+root_path = './'
 
 data_name = 'UCSD_P2_256'
 data_path = os.path.join(root_path, 'dataset', data_name)

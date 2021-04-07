@@ -4,18 +4,22 @@
 
 Dong Gong, Lingqiao Liu, Vuong Le, Budhaditya Saha, Moussa Reda Mansour, Svetha Venkatesh, Anton van den Hengel.  
 In IEEE International Conference on Computer Vision (ICCV), 2019.
-\[[Paper (v2)](https://arxiv.org/abs/1904.02639)\]\[[Project](https://donggong1.github.io/anomdec-memae.html)\]
+\[[Paper](https://openaccess.thecvf.com/content_ICCV_2019/papers/Gong_Memorizing_Normality_to_Detect_Anomaly_Memory-Augmented_Deep_Autoencoder_for_Unsupervised_ICCV_2019_paper.pdf)\]\[[Project](https://donggong1.github.io/anomdec-memae.html)\]
 </small>
+
+<img src='imgs/network.jpg' width=560> 
 
 ## Requirements
 + Python 3.6
-+ PyTorch 0.4.0 (tested with 0.4.0)
++ PyTorch 0.4.1 (tested with 0.4.1)
++ torchvision 0.2.1 (tested with 0.2.1)
++ (optional) Tensorflow 1.3.0 (only for logging with tensorboard)
 + MATLAB (for data preparation)
 
 ## Usage
 ### Testing
 1. Install this repository and the required packages.
-2. Download pretrained models from \[[MODELS](https://drive.google.com/drive/folders/1N2DvmZwCKx_8bZWeueJNn9nsh3rQXdTg?usp=sharing)\]. Move them into `./memae_models`.
+2. Download pretrained models from \[[MODELS](https://drive.google.com/drive/folders/1N2DvmZwCKx_8bZWeueJNn9nsh3rQXdTg?usp=sharing)\]. Move them into `./models`.
 3. Prepare dataset.
    1) Download dataset.
    2) Move the dataset into `./dataset`. 
@@ -23,52 +27,8 @@ In IEEE International Conference on Computer Vision (ICCV), 2019.
 4. Run `.sh` files or `python script_testing.py`. 
 
 ### Training
-Training code will be released later. (To be added)
-
-### Dataset folder structure
-```
-$video_dataset
-  └──UCSD_P2_256
-        ├──testing
-        |    ├──Test001
-        |    |    ├──001.jpg
-        |    |    ├──002.jpg
-        |    |    ├──003.jpg
-        |    |    └──...
-        |    ├──Test002
-        |    |    ├──001.jpg
-        |    |    ├──002.jpg
-        |    |    └──...
-        |    └──...
-        ├──testing_idx
-        |    ├──Test001
-        |    |    ├──Test001_i001.mat (the \#1 video clip -- indices of the frames)
-        |    |    ├──Test001_i002.mat (the \#2 video clip -- indices of the frames)
-        |    |    ├──Test001_i003.mat
-        |    |    └──...
-        |    ├──Test002
-        |    |    ├──Test002_i001.mat
-        |    |    ├──Test002_i001.mat
-        |    |    └──...
-        |    └──...
-        ├──testing_gt
-        |    ├──Test001.mat
-        |    └──...
-        ├──training
-        |    └──... (similar to 'testing')
-        └──training_idx
-             └──... (similar to 'testing_idx')
-```
-
-```
-$image_dataset
-(To be added)
-```
-
-```
-$kddcup_dataset
-(To be added)
-```
+1. Prepare data (as in the above 'Testing' section).
+2. Run `train_video_MemAE.sh` file or `python script_training.py`. Before running the script, please set up the paths (for data, model, and results), hyperparameters, and other options defined in `./options/training_options.py`.
 
 ## Citation
 If you use this code for your research, please cite our paper.

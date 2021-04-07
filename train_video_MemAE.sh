@@ -1,15 +1,15 @@
-#!/bin/bash
-# testing MemAE on video dataset
-python script_testing.py \
+python script_training.py \
     --ModelName MemAE \
     --ModelSetting Conv3DSpar \
     --Dataset UCSD_P2_256 \
     --MemDim 2000 \
     --EntropyLossWeight 0.0002 \
     --ShrinkThres 0.0025 \
+    --BatchSize 10 \
     --Seed 1 \
-    --ModelRoot ./models/ \
-    --ModelFilePath the/path/of/a/trained.model \
+    --SaveCheckInterval 1 \
+    --IsTbLog True \
+    --IsDeter True \
     --DataRoot ./datasets/processed/ \
-    --OutRoot ./results/ \
+    --ModelRoot ./results/ \
     --Suffix Non

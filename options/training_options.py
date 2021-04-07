@@ -1,40 +1,41 @@
 import argparse
-
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+from .testing_options import str2bool
 
 
-class TestOptions():
+class TrainOptions():
     def __init__(self):
         """Reset the class; indicates the class hasn't been initailized"""
         self.initialized = False
     def initialize(self):
         parser = argparse.ArgumentParser()
         parser.add_argument('--UseCUDA', help='Use CUDA?', type=str2bool, nargs='?', default=True)
-        parser.add_argument('--Mode', help='script mode', choices=['train', 'eval'], default='eval')
+        parser.add_argument('--NumWorker', help='num of worker for dataloader', type=int, default=1)
+        parser.add_argument('--Mode', help='script mode', choices=['train', 'eval'], default='train')
         parser.add_argument('--ModelName', help='AE/MemAE', type=str, default='MemAE')
         parser.add_argument('--ModelSetting',
                             help='Conv3D/Conv3DSpar',
                             type=str,
-                            default='Conv3DSpar')  # give the layer details later
+                            default='Conv3DSpar')
         parser.add_argument('--Seed', type=int, default=1)
+        parser.add_argument('--IsDeter', type=str2bool, help='set False for efficiency', default=True)
+        parser.add_argument('--IsTbLog', type=str2bool, default=True)
         parser.add_argument('--Dataset', help='Dataset', type=str, default='UCSD_P2_256')
         parser.add_argument('--ImgChnNum', help='image channel', type=int, default=1)
-        parser.add_argument('--FrameNum', help='frame num for VIDEO clip', type=int, default=16)
-        parser.add_argument('--BatchSize', help='BatchSize', type=int, default=1)
+        parser.add_argument('--FrameNum', help='frame num for video clip', type=int, default=16)
+        parser.add_argument('--BatchSize', help='training batchsize', type=int, default=14)
+        parser.add_argument('--LR', help='learning rate', type=float, default=1e-4)
+        parser.add_argument('--EpochNum', help='max epoch num', type=int, default=100) 
         parser.add_argument('--MemDim', help='Memory Dimention', type=int, default=2000)
         parser.add_argument('--EntropyLossWeight', help='EntropyLossWeight', type=float, default=0.0002)
         parser.add_argument('--ShrinkThres', help='ShrinkThres', type=float, default=0.0025)
+        # ##
+        parser.add_argument('--TextLogInterval', help='text log ite interval', type=int, default=1)
+        parser.add_argument('--SnapInterval', help='snap saving ite interval', type=int, default=100)
+        parser.add_argument('--TBImgLogInterval', help='text log ite interval', type=int, default=200)
+        parser.add_argument('--SaveCheckInterval', help='checkpoint saving epoch interval', type=int, default=1)
         ##
-        parser.add_argument('--ModelRoot', help='Path and name for trained model.', type=str, default='./models/')
-        parser.add_argument('--ModelFilePath', help='Path for a pretrained modle.', type=str, default=None)
         parser.add_argument('--DataRoot', help='DataPath', type=str, default='./dataset/')
-        parser.add_argument('--OutRoot', help='Path for output', type=str, default='./results/')
+        parser.add_argument('--ModelRoot', help='Path for saving model', type=str, default='./models/')
         ##
         parser.add_argument('--Suffix', help='Suffix', type=str, default='Non')
 
@@ -63,3 +64,6 @@ class TestOptions():
             self.print_options(opt)
         self.opt = opt
         return self.opt
+
+
+
