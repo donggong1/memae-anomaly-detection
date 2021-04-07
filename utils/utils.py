@@ -1,6 +1,8 @@
 from __future__ import absolute_import, print_function
 import os
 import numpy as np
+import torch
+import random
 
 def mkdir(path):
     """create a single empty directory if it didn't exist
@@ -19,6 +21,9 @@ def crop_image(img, s):
         elif(len(img.shape)==4):
             # F x C x H x W
             return img[:, :, s:(-s), s:(-s)]
+        elif(len(img.shape)==5):
+            # N x F x C x H x W
+            return img[:, :, :, s:(-s), s:(-s)]
     else:
         return img
 
@@ -46,10 +51,18 @@ class UnNormalize(object):
         self.mean = mean
         self.std = std
     def __call__(self, tensor_in):
+        # NCFHW or CFHW
         t_out = tensor_in.clone()
-        for t, m, s in zip(t_out, self.mean, self.std):
-            t.mul_(s).add_(m)
-        # The normalize code -> t.sub_(m).div_(s)
+        s = t_out.shape
+        if(len(s)==5):
+            channel_num = s[1]
+            # TODO?: make efficient
+            for i in range(channel_num):
+                t_out[:, i, :, :, :] = t_out[:, i, :, :, :]*self.std[i] + self.mean[i]
+        elif(len(s)==4):
+            channel_num = s[0]
+            for i in range(channel_num):
+                t_out[i, :, :, :] = t_out[i, :, :, :]*self.std[i] + self.mean[i]
         return t_out
 
 def vframes2imgs(frames_in, step=1, batch_idx = 0):
@@ -77,11 +90,20 @@ def vframes2imgs(frames_in, step=1, batch_idx = 0):
             idx_list = range(1, num_frame, step)
             return frames_np[idx_list, :, :, :]
 
+# NxCxFxHxW (Tensor) -> NxFxCxHxW (np)
+def btv2btf(frames_in):
+    frames_np = tensor2numpy(frames_in)
+    frames_shape = frames_np.shape
+    if(len(frames_shape)==5):
+        # N x C x F x H x W
+        frames_np = np.transpose(frames_np, (0,2,1,3,4))
+    return frames_np
+
 def get_model_setting(opt):
     if(opt.ModelName == 'MemAE'):
         model_setting = opt.ModelName + '_' + opt.ModelSetting + '_' + opt.Dataset + '_MemDim' + str(opt.MemDim) \
                         + '_EntW' + str(opt.EntropyLossWeight) + '_ShrThres' + str(opt.ShrinkThres) \
-                        + '_' + opt.Suffix
+                        + '_Seed' + str(opt.Seed) + '_' + opt.Suffix
     elif(opt.ModelName == 'AE'):
         model_setting = opt.ModelName + '_' + opt.ModelSetting + '_' + opt.Dataset \
                         + '_' + opt.Suffix
@@ -89,3 +111,19 @@ def get_model_setting(opt):
         model_setting = ''
         print('Wrong Model Name.')
     return model_setting
+
+def weights_init(m):
+    classname = m.__class__.__name__
+    # print(classname)
+    if classname.find('Conv') != -1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+
+def seed(seed_val):
+    np.random.seed(seed_val)
+    torch.manual_seed(seed_val)
+    random.seed(seed_val)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed_val)

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 def eval_video(data_path, res_path, is_show=False):
-    gt_path = os.path.join(data_path, 'testing_gt/')
+    gt_path = os.path.join(data_path, 'Test_gt/')
 
     ###
     video_list = utils.get_file_list(gt_path, is_sort=True)

@@ -32,12 +32,15 @@ model_setting = utils.get_model_setting(opt)
 
 ## data path
 data_root = opt.DataRoot + opt.Dataset + '/'
-data_frame_dir = data_root + 'testing/'
-data_idx_dir = data_root + 'testing_idx/'
+data_frame_dir = data_root + 'Test/'
+data_idx_dir = data_root + 'Test_idx/'
 
 ############ model path
 model_root = opt.ModelRoot
-model_path = os.path.join(model_root, model_setting + '.pt')
+if(opt.ModelFilePath):
+    model_path = opt.ModelFilePath
+else:
+    model_path = os.path.join(model_root, model_setting + '.pt')
 
 ### test result path
 te_res_root = opt.OutRoot
@@ -60,11 +63,18 @@ model.to(device)
 model.eval()
 
 ##
+if(chnum_in_==1):
+    norm_mean = [0.5]
+    norm_std = [0.5]
+elif(chnum_in_==3):
+    norm_mean = (0.5, 0.5, 0.5)
+    norm_std = (0.5, 0.5, 0.5)
+
 frame_trans = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        transforms.Normalize(norm_mean, norm_std)
     ])
-unorm_trans = utils.UnNormalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+unorm_trans = utils.UnNormalize(mean=norm_mean, std=norm_std)
 
 # ##
 video_list = utils.get_subdir_list(data_idx_dir)
@@ -84,12 +94,11 @@ with torch.no_grad():
         video_dataset = data.VideoDatasetOneDir(video_idx_path, video_frame_path, transform=frame_trans)
         video_data_loader = DataLoader(video_dataset,
                                        batch_size=batch_size_in,
-                                       shuffle=False,
+                                       shuffle=False
                                        )
         # testing results on a single video sequence
-        print('[vidx %d/%d] [vname %s]' % (ite_vid+1, video_num, video_name))
-        recon_error_list = [None] * len(video_data_loader)
-        recon_std_list = [None] * len(video_data_loader)
+        print('[vidx %02d/%d] [vname %s]' % (ite_vid+1, video_num, video_name))
+        recon_error_list = []
         #
         for batch_idx, (item, frames) in enumerate(video_data_loader):
             idx_name = idx_name_list[item[0]]
@@ -107,19 +116,33 @@ with torch.no_grad():
                 r = utils.crop_image(recon_np, img_crop_size) - utils.crop_image(input_np, img_crop_size)
                 # recon_error = np.mean(sum(r**2)**0.5)
                 recon_error = np.mean(r ** 2)  # **0.5
+                recon_error_list += [recon_error]
             elif (opt.ModelName == 'MemAE'):
                 recon_res = model(frames)
                 recon_frames = recon_res['output']
-                recon_np = utils.vframes2imgs(unorm_trans(recon_frames.data), step=1, batch_idx=0)
-                input_np = utils.vframes2imgs(unorm_trans(frames.data), step=1, batch_idx=0)
-                r = utils.crop_image(recon_np, img_crop_size) - utils.crop_image(input_np, img_crop_size)
-                sp_error_map = sum(r ** 2)**0.5
-                recon_error = np.mean(sp_error_map.flatten())
-                ##
+                r = recon_frames - frames
+                r = utils.crop_image(r, img_crop_size)
+                sp_error_map = torch.sum(r**2, dim=1)**0.5
+                s = sp_error_map.size()
+                sp_error_vec = sp_error_map.view(s[0], -1)
+                recon_error = torch.mean(sp_error_vec, dim=-1)
+                recon_error_list += recon_error.cpu().tolist()
+            ######
+            # elif (opt.ModelName == 'MemAE'):
+            #     recon_res = model(frames)
+            #     recon_frames = recon_res['output']
+            #     recon_np = utils.btv2btf(unorm_trans(recon_frames.data))
+            #     input_np = utils.btv2btf(unorm_trans(frames.data))
+            #     r = utils.crop_image(recon_np, img_crop_size) - utils.crop_image(input_np, img_crop_size)
+            #     sp_error_map = np.sum(r**2, axis=1)**0.5
+            #     tmp_s = sp_error_map.shape
+            #     sp_error_vec = np.reshape(sp_error_map, (tmp_s[0], -1))
+            #     recon_error = np.mean(sp_error_vec, axis=-1)
+            #     recon_error_list += recon_error.tolist()
+            #######
             else:
                 recon_error = -1
                 print('Wrong ModelName.')
-            recon_error_list[batch_idx] = recon_error
         np.save(os.path.join(te_res_path, video_name + '.npy'), recon_error_list)
 
 ## evaluation

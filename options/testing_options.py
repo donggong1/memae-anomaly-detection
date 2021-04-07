@@ -21,6 +21,7 @@ class TestOptions():
                             help='Conv3D/Conv3DSpar',
                             type=str,
                             default='Conv3DSpar')  # give the layer details later
+        parser.add_argument('--Seed', type=int, default=1)
         parser.add_argument('--Dataset', help='Dataset', type=str, default='UCSD_P2_256')
         parser.add_argument('--ImgChnNum', help='image channel', type=int, default=1)
         parser.add_argument('--FrameNum', help='frame num for VIDEO clip', type=int, default=16)
@@ -30,6 +31,7 @@ class TestOptions():
         parser.add_argument('--ShrinkThres', help='ShrinkThres', type=float, default=0.0025)
         ##
         parser.add_argument('--ModelRoot', help='Path and name for trained model.', type=str, default='./memae_models/')
+        parser.add_argument('--ModelFilePath', help='Path for a pretrained modle.', type=str, default=None)
         parser.add_argument('--DataRoot', help='DataPath', type=str, default='./dataset/')
         parser.add_argument('--OutRoot', help='Path for output', type=str, default='./results/')
         ##
