@@ -27,10 +27,10 @@ opt_parser = TrainOptions()
 # is_print = True 表示的是对参数进行描述
 opt = opt_parser.parse(is_print=True)
 use_cuda = opt.UseCUDA
-# 表示的是否使用cuda，这里禁用GPU，因为显存不够溢出
-# device = torch.device("cuda" if use_cuda else "cpu")
-device = torch.device("cpu")
-
+# 表示的是否使用cuda
+device = torch.device("cuda" if use_cuda else "cpu")
+# device = torch.device("cpu")
+# torch.backends.cudnn.enabled = False
 ###
 utils.seed(opt.Seed)
 if (opt.IsDeter):
