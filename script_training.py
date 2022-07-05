@@ -27,6 +27,8 @@ opt_parser = TrainOptions()
 # is_print = True 表示的是对参数进行描述
 opt = opt_parser.parse(is_print=True)
 use_cuda = opt.UseCUDA
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 # 表示的是否使用cuda
 device = torch.device("cuda" if use_cuda else "cpu")
 # device = torch.device("cpu")

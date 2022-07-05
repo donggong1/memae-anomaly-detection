@@ -1,0 +1,12 @@
+{
+  // 默认对Python文件进行静态检查
+  "python.linting.enabled": true,
+  // 默认在Python文件保存时进行静态检查
+  "python.linting.lintOnSave": true,
+  // 默认使用pylint对Python文件进行静态检查
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": [
+      "--ignore=E402"
+  ],
+}
