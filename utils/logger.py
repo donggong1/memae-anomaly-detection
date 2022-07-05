@@ -33,7 +33,6 @@ class Logger(object):
             # print("img_np: ", img_np.shape)
             img_pil = Image.fromarray(img_np, 'RGB')
             # print("img_np: ", img_pil.size)
-            img_pil.save('images/%s_%d.png' % (tag, i), format="png")
             img_array.append(img_np)
 
             with self.writer.as_default():

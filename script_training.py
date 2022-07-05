@@ -20,15 +20,15 @@ import time
 # 导入三个模型
 from models import AutoEncoderCov3D, AutoEncoderCov3DMem
 from models import EntropyLossEncap
+import time
 
+start_time = time.process_time()
 ###
 # 导入TrainOptions这个模块
 opt_parser = TrainOptions()
 # is_print = True 表示的是对参数进行描述
 opt = opt_parser.parse(is_print=True)
 use_cuda = opt.UseCUDA
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 # 表示的是否使用cuda
 device = torch.device("cuda" if use_cuda else "cpu")
 # device = torch.device("cpu")
@@ -114,7 +114,7 @@ else:
 model.apply(utils.weights_init)
 
 #########
-device = torch.device("cuda" if use_cuda else "cpu")
+# device = torch.device("cuda" if use_cuda else "cpu")
 model.to(device)
 tr_recon_loss_func = nn.MSELoss().to(device)
 tr_entropy_loss_func = EntropyLossEncap().to(device)
@@ -187,7 +187,7 @@ for epoch_idx in range(0, max_epoch_num):
         torch.save(
             model.state_dict(), '%s/%s_epoch_%04d.pt' %
             (saving_model_path, model_setting, epoch_idx))
-
+print(time.process_time() - start_time)
 torch.save(
     model.state_dict(), '%s/%s_epoch_%04d_final.pt' %
     (saving_model_path, model_setting, epoch_idx))
