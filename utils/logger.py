@@ -31,7 +31,7 @@ class Logger(object):
             img_np = (img * 255).astype(np.uint8)
             img = img.transpose(1, 2, 0)
             # print("img_np: ", img_np.shape)
-            img_pil = Image.fromarray(img_np, 'RGB')
+            # img_pil = Image.fromarray(img_np, 'RGB')
             # print("img_np: ", img_pil.size)
             img_array.append(img_np)
 
