@@ -33,7 +33,7 @@
         "--IsDeter",
         "True",
         "--DataRoot",
-        "./datasets/processed/",
+        "./dataset/processed/",
         "--ModelRoot",
         "./results/",
         "--Suffix",
