@@ -1,0 +1,47 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/script_training.py",
+      "args": [
+        "--ModelName",
+        "MemAE",
+        "--ModelSetting",
+        "Conv3DSpar",
+        "--Dataset",
+        "UCSD_P2_256",
+        "--MemDim",
+        "2000",
+        "--EntropyLossWeight",
+        "0.0002",
+        "--ShrinkThres",
+        "0.0025",
+        "--BatchSize",
+        "10",
+        "--Seed",
+        "1",
+        "--SaveCheckInterval",
+        "1",
+        "--IsTbLog",
+        "True",
+        "--IsDeter",
+        "True",
+        "--DataRoot",
+        "./dataset/processed/",
+        "--ModelRoot",
+        "./results/",
+        "--Suffix",
+        "Non"
+      ],
+      // "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

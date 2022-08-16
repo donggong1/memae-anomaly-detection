@@ -2,26 +2,40 @@ import os
 import utils
 import torch
 import torch.nn as nn
+# 对图片数据进行转换
 from torchvision import transforms
+# 用来加载数据
 from torch.utils.data import DataLoader
+# 用来表示矩阵的库
 import numpy as np
+# 导入数据集
 import data
+# 用来对图片进行提取访问的库
 import scipy.io as sio
+# 自己定义的参数，进行定义比较方便
 from options.training_options import TrainOptions
+# 这是一个自建的包
 import utils
 import time
+# 导入三个模型
 from models import AutoEncoderCov3D, AutoEncoderCov3DMem
 from models import EntropyLossEncap
+import time
 
+start_time = time.process_time()
 ###
+# 导入TrainOptions这个模块
 opt_parser = TrainOptions()
+# is_print = True 表示的是对参数进行描述
 opt = opt_parser.parse(is_print=True)
 use_cuda = opt.UseCUDA
+# 表示的是否使用cuda
 device = torch.device("cuda" if use_cuda else "cpu")
-
+# device = torch.device("cpu")
+# torch.backends.cudnn.enabled = False
 ###
 utils.seed(opt.Seed)
-if(opt.IsDeter):
+if (opt.IsDeter):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
@@ -34,15 +48,22 @@ batch_size_in = opt.BatchSize
 learning_rate = opt.LR
 max_epoch_num = opt.EpochNum
 
-chnum_in_ = opt.ImgChnNum      # channel number of the input images
-framenum_in_ = opt.FrameNum  # num of frames in a video clip
+# channel number of the input images
+chnum_in_ = opt.ImgChnNum
+
+# num of frames in a video clip（指视频剪辑中帧的数量）
+framenum_in_ = opt.FrameNum
+# 记忆的维度
 mem_dim_in = opt.MemDim
 entropy_loss_weight = opt.EntropyLossWeight
+# 稀疏收缩
 sparse_shrink_thres = opt.ShrinkThres
 
 img_crop_size = 0
 
-print('bs=%d, lr=%f, entrloss=%f, shr=%f, memdim=%d' % (batch_size_in, learning_rate, entropy_loss_weight, sparse_shrink_thres, mem_dim_in))
+print('bs=%d, lr=%f, entrloss=%f, shr=%f, memdim=%d' %
+      (batch_size_in, learning_rate, entropy_loss_weight, sparse_shrink_thres,
+       mem_dim_in))
 ############
 ## data path
 data_root = opt.DataRoot + opt.Dataset + '/'
@@ -55,43 +76,45 @@ saving_model_path = os.path.join(saving_root, 'model_' + model_setting + '/')
 utils.mkdir(saving_model_path)
 
 ### tblog
-if(opt.IsTbLog):
-    log_path = os.path.join(saving_root, 'log_'+model_setting + '/')
+if (opt.IsTbLog):
+    log_path = os.path.join(saving_root, 'log_' + model_setting + '/')
     utils.mkdir(log_path)
     tb_logger = utils.Logger(log_path)
 
 ##
-if(chnum_in_==1):
+if (chnum_in_ == 1):
     norm_mean = [0.5]
     norm_std = [0.5]
-elif(chnum_in_==3):
+elif (chnum_in_ == 3):
     norm_mean = (0.5, 0.5, 0.5)
     norm_std = (0.5, 0.5, 0.5)
 
-frame_trans = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(norm_mean, norm_std)
-    ])
+frame_trans = transforms.Compose(
+    [transforms.ToTensor(),
+     transforms.Normalize(norm_mean, norm_std)])
 unorm_trans = utils.UnNormalize(mean=norm_mean, std=norm_std)
 
 ###### data
-video_dataset = data.VideoDataset(tr_data_idx_dir, tr_data_frame_dir, transform=frame_trans)
+video_dataset = data.VideoDataset(tr_data_idx_dir,
+                                  tr_data_frame_dir,
+                                  transform=frame_trans)
 tr_data_loader = DataLoader(video_dataset,
                             batch_size=batch_size_in,
                             shuffle=True,
-                            num_workers=opt.NumWorker
-                            )
+                            num_workers=opt.NumWorker)
 
 ###### model
-if(opt.ModelName=='MemAE'):
-    model = AutoEncoderCov3DMem(chnum_in_, mem_dim_in, shrink_thres=sparse_shrink_thres)
+if (opt.ModelName == 'MemAE'):
+    model = AutoEncoderCov3DMem(chnum_in_,
+                                mem_dim_in,
+                                shrink_thres=sparse_shrink_thres)
 else:
     model = []
     print('Wrong model name.')
 model.apply(utils.weights_init)
 
 #########
-device = torch.device("cuda" if use_cuda else "cpu")
+# device = torch.device("cuda" if use_cuda else "cpu")
 model.to(device)
 tr_recon_loss_func = nn.MSELoss().to(device)
 tr_entropy_loss_func = EntropyLossEncap().to(device)
@@ -103,7 +126,7 @@ textlog_interval = opt.TextLogInterval
 snap_save_interval = opt.SnapInterval
 save_check_interval = opt.SaveCheckInterval
 tb_img_log_interval = opt.TBImgLogInterval
-global_ite_idx = 0 # for logging
+global_ite_idx = 0  # for logging
 for epoch_idx in range(0, max_epoch_num):
     for batch_idx, (item, frames) in enumerate(tr_data_loader):
         frames = frames.to(device)
@@ -123,7 +146,7 @@ for epoch_idx in range(0, max_epoch_num):
             tr_optimizer.step()
             ##
         ## TB log val
-        if(opt.IsTbLog):
+        if (opt.IsTbLog):
             tb_info = {
                 'loss': loss_val,
                 'recon_loss': recon_loss_val,
@@ -132,27 +155,39 @@ for epoch_idx in range(0, max_epoch_num):
             for tag, value in tb_info.items():
                 tb_logger.scalar_summary(tag, value, global_ite_idx)
             # TB log img
-            if( (global_ite_idx % tb_img_log_interval)==0 ):
-                frames_vis = utils.vframes2imgs(unorm_trans(frames.data), step=5, batch_idx=0)
+            if ((global_ite_idx % tb_img_log_interval) == 0):
+                frames_vis = utils.vframes2imgs(unorm_trans(frames.data),
+                                                step=5,
+                                                batch_idx=0)
                 frames_vis = np.concatenate(frames_vis, axis=-1)
-                frames_vis = frames_vis[None, :, :] * np.ones(3, dtype=int)[:, None, None]
-                frames_recon_vis = utils.vframes2imgs(unorm_trans(recon_frames.data), step=5, batch_idx=0)
+                frames_vis = frames_vis[None, :, :] * np.ones(
+                    3, dtype=int)[:, None, None]
+                frames_recon_vis = utils.vframes2imgs(unorm_trans(
+                    recon_frames.data),
+                                                      step=5,
+                                                      batch_idx=0)
                 frames_recon_vis = np.concatenate(frames_recon_vis, axis=-1)
-                frames_recon_vis = frames_recon_vis[None, :, :] * np.ones(3, dtype=int)[:, None, None]
-                tb_info = {
-                    'x': frames_vis,
-                    'x_rec': frames_recon_vis
-                }
+                frames_recon_vis = frames_recon_vis[None, :, :] * np.ones(
+                    3, dtype=int)[:, None, None]
+                tb_info = {'x': frames_vis, 'x_rec': frames_recon_vis}
                 for tag, imgs in tb_info.items():
                     tb_logger.image_summary(tag, imgs, global_ite_idx)
         ##
-        if((batch_idx % textlog_interval)==0):
-            print('[%s, epoch %d/%d, bt %d/%d] loss=%f, rc_losss=%f, ent_loss=%f' % (model_setting, epoch_idx, max_epoch_num, batch_idx, data_loader_len, loss_val, recon_loss_val, entropy_loss_val) )
-        if((global_ite_idx % snap_save_interval)==0):
-            torch.save(model.state_dict(), '%s/%s_snap.pt' % (saving_model_path, model_setting) )
+        if ((batch_idx % textlog_interval) == 0):
+            print(
+                '[%s, epoch %d/%d, bt %d/%d] loss=%f, rc_losss=%f, ent_loss=%f'
+                %
+                (model_setting, epoch_idx, max_epoch_num, batch_idx,
+                 data_loader_len, loss_val, recon_loss_val, entropy_loss_val))
+        if ((global_ite_idx % snap_save_interval) == 0):
+            torch.save(model.state_dict(),
+                       '%s/%s_snap.pt' % (saving_model_path, model_setting))
         global_ite_idx += 1
-    if((epoch_idx % save_check_interval)==0):
-        torch.save(model.state_dict(), '%s/%s_epoch_%04d.pt' % (saving_model_path, model_setting, epoch_idx) )
-
-torch.save(model.state_dict(), '%s/%s_epoch_%04d_final.pt' % (saving_model_path, model_setting, epoch_idx) )
-
+    if ((epoch_idx % save_check_interval) == 0):
+        torch.save(
+            model.state_dict(), '%s/%s_epoch_%04d.pt' %
+            (saving_model_path, model_setting, epoch_idx))
+print(time.process_time() - start_time)
+torch.save(
+    model.state_dict(), '%s/%s_epoch_%04d_final.pt' %
+    (saving_model_path, model_setting, epoch_idx))

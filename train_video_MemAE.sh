@@ -1,4 +1,5 @@
-python script_training.py \
+#!/bin/bash
+time python script_training.py \
     --ModelName MemAE \
     --ModelSetting Conv3DSpar \
     --Dataset UCSD_P2_256 \

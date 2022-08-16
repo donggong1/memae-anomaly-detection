@@ -1,0 +1,6 @@
+__pycache__/
+datasets/
+dataset/
+log_MemAE_Conv3DSpar_UCSD_P2_256_MemDim2000_EntW0.0002_ShrThres0.0025_Seed1_Non/
+model_MemAE_Conv3DSpar_UCSD_P2_256_MemDim2000_EntW0.0002_ShrThres0.0025_Seed1_Non/
+results/
